@@ -134,21 +134,32 @@ function scatterGenresVsTemp(title) {
 }
 
 // DOUGHNUT — member vs casual share for one title + year
-function doughnutYearVsTitle(year, title) {
-  const row = chartData.find(r => r.year === year && r.title === title);
+function doughnutYearVsTitle(year) {
+  const row = chartData.find(r => r.year === year);
+console.log(row[1]);
+  let esport = 0;
+  for (let i = 0; i <= row; i++) {
+    if (row.esports == 1) {
+      esport = esport + 1;
+        
+    } else {
+      console.log("zero");
+    }
+  }
 
-  const member = Math.round(row.unitsM * 100);
-  const casual = 100 - member;
+  esport = Math.round(esport * 100);
+console.log(esport);
+  const nonEsport = 100 - esport;
 
   return {
     type: "doughnut",
     data: {
-      labels: ["Titles (%)", "Years (%)"],
-      datasets: [{ label: "Rider mix", data: [member, casual] }]
+      labels: ["Esports (%)", "No Esports (%)"],
+      datasets: [{ label: "Game mix", data: [esport, nonEsport] }]
     },
     options: {
       plugins: {
-        title: { display: true, text: `Rider mix: ${title} (${year})` }
+        title: { display: true, text: `Game mix: (${year})` }
       }
     }
   };
