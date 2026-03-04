@@ -53,10 +53,20 @@ function buildConfig(type, { year, title, metric }) {
 
 // Task A: BAR — compare titles for a given year
 function barBytitle(year, metric) {
-  const rows = chartData.filter(r => r.year === year);
+  const targetYear = parseInt(year);
+  const rows = chartData.filter(r => r.year === targetYear);
 
-  const labels = rows.map(r => r.title);
-  const values = rows.map(r => r[metric]);
+
+  const totals = {};
+  rows.forEach(r => {
+    if (!totals[r.title]) {
+      totals[r.title] = 0;
+    }
+    totals[r.title] += r[metric];
+  });
+
+  const labels = Object.keys(totals);
+  const values = Object.values(totals);
 
   return {
     type: "bar",
@@ -64,21 +74,23 @@ function barBytitle(year, metric) {
       labels,
       datasets: [{
         label: `${metric} in ${year}`,
-        data: values
+        data: values,
+        backgroundColor: "#36A2EB"
       }]
     },
     options: {
       responsive: true,
       plugins: {
-        title: { display: true, text: `title comparison (${year})` }
+        title: { display: true, text: `Title Comparison (${year})` }
       },
       scales: {
-        y: { title: { display: true, text: metric } },
-        x: { title: { display: true, text: "title" } }
+        y: { beginAtZero: true, title: { display: true, text: metric } },
+        x: { title: { display: true, text: "Game Title" } }
       }
     }
   };
 }
+
 
 // Task B: LINE — trend over time for one title (2 datasets)
 function lineOverTime(title, metrics) {
@@ -135,27 +147,42 @@ function scatterGenresVsTemp(title) {
 
 // DOUGHNUT — member vs casual share for one title + year
 function doughnutYearVsTitle(year) {
-  const row = chartData.find(r => r.year === year);
-console.log(row[1]);
+
+  const rows = chartData.filter(r => r.year == year);
+  const uniqueTitles = [];
+  const uniqueRows = rows.filter(r => {
+
+    if (!uniqueTitles.includes(r.title)) {
+      uniqueTitles.push(r.title);
+      return true;
+    }
+    return false;
+  });
   let esport = 0;
-  for (let i = 0; i <= row; i++) {
+
+  uniqueRows.forEach(row => {
     if (row.esports == 1) {
       esport = esport + 1;
-        
     } else {
       console.log("zero");
     }
-  }
+  });
 
-  esport = Math.round(esport * 100);
-console.log(esport);
+  const totalGames = uniqueRows.length;
+  esport = Math.round((esport / totalGames) * 100);
+  
+  console.log(esport);
   const nonEsport = 100 - esport;
 
   return {
     type: "doughnut",
     data: {
       labels: ["Esports (%)", "No Esports (%)"],
-      datasets: [{ label: "Game mix", data: [esport, nonEsport] }]
+      datasets: [{ 
+        label: "Game mix", 
+        data: [esport, nonEsport],
+        backgroundColor: ["#36A2EB", "#FF6384"] 
+      }]
     },
     options: {
       plugins: {
@@ -164,6 +191,7 @@ console.log(esport);
     }
   };
 }
+
 
 // RADAR — compare titles across multiple metrics for one year
 function radarComparetitles(year) {
